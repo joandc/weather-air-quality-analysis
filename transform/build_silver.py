@@ -30,13 +30,12 @@ weather_frames = []
 air_quality_frames = []
 
 for city in CITIES:
-    weather_path = latest_file(WEATHER_BRONZE_DIR, "toronto_weather_*.json")
+    weather_path = latest_file(WEATHER_BRONZE_DIR, f"{city['slug']}_weather_*.json")
     # Load a Bronze JSON file
     with open(weather_path, "r", encoding="utf-8") as f:
         weather_payload = json.load(f)
 
-    # The weather API already gives daily arrays, so it can be
-    # flatten them directly into a DataFrame.
+    # The weather API already gives daily values, so it can be flatten directly into a DataFrame.
     # Use the `daily` section of the payload:
 
     daily = weather_payload["daily"]
@@ -55,7 +54,9 @@ for city in CITIES:
     weather_frames.append(weather_df)
 
     # Do the same for air_quality
-    air_quality_path = latest_file(AIR_QUALITY_BRONZE_DIR, "toronto_air_quality_*.json")
+    air_quality_path = latest_file(
+        AIR_QUALITY_BRONZE_DIR, f"{city['slug']}_air_quality_*.json"
+    )
     with open(air_quality_path, "r", encoding="utf-8") as f:
         air_quality_payload = json.load(f)
 
@@ -72,6 +73,7 @@ for city in CITIES:
     )
     # Then create a `date` column:
     air_quality_df["date"] = air_quality_df["timestamp"].dt.date
+
     # Aggregate hourly air quality to daily values
     # Group by `date` and `city`: This gives you a daily Silver table from hourly Bronze data.
     daily_air_quality = air_quality_df.groupby(["date", "city"], as_index=False).agg(
