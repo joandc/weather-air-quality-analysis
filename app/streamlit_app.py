@@ -29,7 +29,8 @@ h1, h2, h3,
 }
 
 [data-testid="stCaptionContainer"] p {
-    font-size: 1.2rem !important;
+    font-size: 1.19rem !important;
+    color: black !important;
 }
 
 [data-testid="stMarkdownContainer"] p,
@@ -314,7 +315,7 @@ h1, h2, h3,
 
 .bridge {
     color: #475569;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     line-height: 1.75;
     margin: 0.25rem 0 1rem 0;
 }
@@ -591,8 +592,7 @@ def render_data_foundations(filtered_df):
     st.markdown(
         """
         <div class="bridge">
-          Before making claims, we need to show what is in the final Gold dataset,
-          what variables were derived, and why those fields matter for the later tests.
+          Before we interpret the results, let’s look at what’s in the final Gold dataset, which variables were created, and why they matter for the tests that follow.
         </div>
         """,
         unsafe_allow_html=True,
