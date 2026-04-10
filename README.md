@@ -122,9 +122,6 @@ It also includes:
 |-- README.md
 |-- assignment4_analysis_plan.md
 |-- assignment4_reflection.md
-|-- analysis_preview.md
-|-- narrative.md
-|-- style.md
 |-- pyproject.toml
 |-- data/
 |   |-- bronze/
