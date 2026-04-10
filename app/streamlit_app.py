@@ -127,7 +127,7 @@ h1, h2, h3,
 
 .hero-sub {
     color: #cbd5e1;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     line-height: 1.75;
     max-width: 760px;
     margin-bottom: 1.25rem;
@@ -228,7 +228,7 @@ h1, h2, h3,
 }
 
 .card-title {
-    font-size: 1.08rem;
+    font-size: 0.98rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -264,7 +264,7 @@ h1, h2, h3,
 .tbl {
     width: 100%;
     border-collapse: collapse;
-    font-size: 1rem;
+    font-size: 0.85rem;
     border-radius: 10px;
     overflow: hidden;
 }
@@ -314,7 +314,7 @@ h1, h2, h3,
 
 .bridge {
     color: #475569;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     line-height: 1.75;
     margin: 0.25rem 0 1rem 0;
 }
