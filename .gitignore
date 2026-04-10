@@ -7,3 +7,11 @@ config.toml
 data/bronze/**/*.json
 data/silver/*.csv
 data/gold/*.csv
+
+Streamlit_App_Requirements.md
+narrative.md
+solution.md
+style.md
+
+app/streamlit_app2.py
+app/streamlit_app3 - Copy.py

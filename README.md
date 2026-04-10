@@ -1,130 +1,216 @@
-# Assignment 3 - Data Pipeline for Statistical Analysis
+# Weather Air Quality Analysis
+
+Medallion data pipeline and Streamlit dashboard analyzing weather and air quality patterns in Toronto and Vancouver, enriched with Canadian holiday data.
 
 ## Overview
 
-This project implements Project Part 1 using Weather and Air Quality Pipeline Data and Python. It builds a medallion-style ETL pipeline that:
+This repository contains Assignment 4, which serves as Part 2 of the Assignment 3 weather and air quality analytics project. It combines:
 
-- ingests weather and air-quality data from Open-Meteo
-- stores raw snapshots in Bronze
-- cleans and standardizes source data in Silver
-- joins both sources into a Gold dataset for later statistical testing
+- a medallion-style pipeline with Bronze, Silver, and Gold layers
+- daily weather and air-quality data from Open-Meteo
+- a Canadian public holiday source from the Nager.Date API
+- a Streamlit app that presents the analysis as a guided statistical story
 
-The project is designed so Project Part 2 can use the Gold dataset in a Streamlit app. The current analysis plan focuses on one-sample t-test, two-sample t-test, and proportion z-test support.
+The project starts with raw source data, cleans and joins it into a Gold dataset, and then uses that dataset in a Streamlit app to move from context, to visuals, to formal hypothesis testing, and finally to reflection and limitations.
 
-## Chosen API Pack
+## Main Question
 
-This implementation uses:
+How do weather conditions and holidays relate to air quality in Toronto and Vancouver, and which visible patterns are strong enough to support formal statistical testing?
+
+## Data Sources
+
+This project uses three external data sources:
 
 - Open-Meteo Historical Weather
 - Open-Meteo Air Quality
+- Nager.Date public holidays API for Canada
 
-The pipeline pulls data for two cities:
+The weather and air-quality data are collected for:
 
 - Toronto
 - Vancouver
 
-Using two cities gives the Gold dataset a natural grouping variable for future two-sample comparisons and proportion tests.
+The holiday source adds contextual information that was not available in the original Assignment 3 pipeline.
+
+## Pipeline Design
+
+### Bronze
+
+Raw source responses are stored exactly as returned:
+
+- `data/bronze/open_meteo_weather/`
+- `data/bronze/open_meteo_air_quality/`
+- `data/bronze/nager_holidays/`
+
+Each Bronze file is timestamped so snapshots can be retained.
+
+### Silver
+
+The Silver layer stores cleaned, analysis-ready source tables:
+
+- `data/silver/weather_daily_clean.csv`
+- `data/silver/air_quality_daily_clean.csv`
+- `data/silver/holidays_clean.csv`
+
+At this stage:
+
+- weather data is flattened into daily records
+- hourly air-quality data is aggregated into daily measures
+- holiday API data is filtered to national holidays and standardized by date
+
+### Gold
+
+The Gold dataset is:
+
+- `data/gold/weather_air_quality_daily.csv`
+
+The Gold build:
+
+- joins weather and air quality on `date` and `city`
+- uses an inner join for the core weather/air-quality merge
+- joins the holiday source by `date`
+- fills non-holiday dates as `False`
+- keeps only the fields needed for analysis and the Streamlit app
+
+## Derived Variables
+
+The final Gold dataset includes these derived features:
+
+- `rainy_day`: `True` when daily precipitation is greater than 0
+- `is_holiday`: `True` when the date is a Canadian statutory holiday
+- `bad_air_day`: `True` when `pm25_mean > 15`, based on the WHO PM2.5 guideline
+
+These variables make it possible to test both weather-based and holiday-based questions.
+
+## Assignment 4 Analysis
+
+The Streamlit app supports five required analyses:
+
+1. One-sample t-test: Is mean daily AQI different from the benchmark value of 15?
+2. Two-sample t-test: Do PM2.5 levels differ between rainy and non-rainy days?
+3. Chi-square test: Is `bad_air_day` independent of `is_holiday`?
+4. Levene's test: Is PM2.5 variability different on holidays versus regular days?
+5. Pearson correlation: Is temperature associated with PM2.5 concentration?
+
+Each test is supported by a chart that motivates the formal method used in the app.
+
+## Streamlit App
+
+The main Assignment 4 app is:
+
+- `app/streamlit_app.py`
+
+The app is organized as a guided analytical story with these sections:
+
+- Project overview and data story
+- Data foundations
+- Visual evidence
+- Formal hypothesis tests
+- Reflection and limitations
+
+It also includes:
+
+- city and date filters in the sidebar
+- chart captions that connect visual evidence to hypothesis tests
+- plain-language interpretations of each statistical result
+- a branded hero section using the AtmoScope logo
 
 ## Repository Layout
 
 ```text
 .
 |-- README.md
-|-- requirements.txt
-|-- .env.example
-|-- .gitignore
+|-- assignment4_analysis_plan.md
+|-- assignment4_reflection.md
 |-- analysis_preview.md
+|-- narrative.md
+|-- style.md
+|-- pyproject.toml
 |-- data/
 |   |-- bronze/
+|   |   |-- open_meteo_weather/
+|   |   |-- open_meteo_air_quality/
+|   |   `-- nager_holidays/
 |   |-- silver/
 |   `-- gold/
 |-- ingest/
+|   `-- fetch_holidays.py
 |-- transform/
-`-- notebooks/
+|   |-- build_silver.py
+|   `-- build_gold.py
+`-- app/
+    |-- streamlit_app.py
+    `-- assets/
 ```
-
-## Bronze, Silver, Gold
-
-### Bronze
-
-Raw Open-Meteo API responses are saved exactly as returned under:
-
-- `data/bronze/open_meteo_weather/`
-- `data/bronze/open_meteo_air_quality/`
-
-Each file uses a timestamped filename so multiple snapshots can be retained.
-
-### Silver
-
-The Silver layer contains one cleaned table per source:
-
-- `data/silver/weather_daily_clean.csv`
-- `data/silver/air_quality_daily_clean.csv`
-
-Weather data is flattened from daily arrays. Air-quality data is aggregated from hourly observations to daily metrics.
-
-### Gold
-
-The Gold layer joins Silver datasets on `date` and `city` into:
-
-- `data/gold/weather_air_quality_daily.csv`
-
-Derived features, based on analysis_preview.md, include:
-
-- `rainy_day`
 
 ## How To Run
 
-1. Create and activate a virtual environment.
-2. Install dependencies:
+### 1. Install dependencies
+
+Using `uv`:
 
 ```bash
-uv add requests pandas
+uv sync
 ```
 
-3. Optionally create a `.env` file from `.env.example`.
-4. Run stages separately:
+Or with `pip`:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Build or refresh the pipeline
+
+Run the ingestion and transform steps:
 
 ```bash
 uv run python ingest/run_ingestion.py
+uv run python ingest/fetch_holidays.py
 uv run python transform/build_silver.py
 uv run python transform/build_gold.py
 ```
 
-## Join and Missing-Value Strategy
+### 3. Launch the Streamlit app
 
-- Silver weather and air-quality tables are joined on `date` and `city`.
-- The Gold build uses an inner join so only dates present in both cleaned sources are included.
-- Missing hourly air-quality values are ignored during daily aggregation when possible through pandas aggregation defaults.
-- Any remaining rows missing required Gold fields are dropped before output.
+```bash
+uv run streamlit run app/streamlit_app3.py
+```
 
-## Gold Dataset Purpose
+## Join and Data Notes
 
-The Gold dataset is intentionally small and designed for Part 2 statistical analysis. It supports:
+- Weather and air quality are joined on `date` and `city`.
+- The holiday source is joined on `date` only because it is a national calendar.
+- The holiday flag therefore applies to both cities on the same date.
+- Missing hourly air-quality values are handled during daily aggregation where possible.
+- The Gold dataset drops rows missing required analysis fields.
 
-- a one-sample t-test using `aqi_max`
-- a two-sample t-test using `pm25_mean` grouped by `rainy_day`
-- a proportion z-test using `rainy_day` grouped by `city`
+## Limitations
 
-Example future questions:
+Important limitations in this project include:
 
-- Is average daily AQI different from a benchmark value?
-- Do PM2.5 levels differ on rainy versus non-rainy days?
-- Is the proportion of rainy days higher in Toronto than in Vancouver?
+- the holiday source is national rather than city-specific
+- holiday observations are much fewer than regular days
+- AQI and PM2.5 can be skewed by occasional spikes
+- statistical significance does not imply practical importance or causation
+
+## Supporting Docs
+
+- `assignment4_analysis_plan.md`: analysis design and method justification
+- `assignment4_reflection.md`: reflection on what worked, what was difficult, assumptions, and improvements
 
 ## AI Usage
 
 AI tools used:
 
-- ChatGPT
+- ChatGPT / Codex
 
-What AI helped with:
+AI was used under my prompting direction for:
 
-- assignment breakdown
-- repository scaffolding
-- ETL boilerplate structure
-- planning how to shape the Gold dataset for later hypothesis testing
+- assignment planning
+- refining the data pipeline and supporting code
+- documentation refinement
+- streamlining the Streamlit app design, layout, and narrative structure
 
-One thing verified manually:
+AI-generated contributions and executions were guided by my prompts, review decisions, and design choices throughout the project.
 
-- the project structure and feature set were checked against the assignment brief to make sure Weather and Air Quality Pipeline Data, Bronze snapshot requirements, and Gold analysis requirements were all covered.
+All implementation details, joins, derived variables, and analysis choices were checked against the actual repository contents and assignment requirements.

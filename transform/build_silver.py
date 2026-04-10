@@ -100,3 +100,25 @@ air_quality_silver.to_csv(AIR_QUALITY_SILVER_PATH, index=False)
 # Add print statements to check if the files were created:
 print(f"Saved {WEATHER_SILVER_PATH}")
 print(f"Saved {AIR_QUALITY_SILVER_PATH}")
+
+# --- Holidays Silver ---
+HOLIDAYS_BRONZE_DIR = Path("data/bronze/nager_holidays")
+HOLIDAYS_SILVER_PATH = Path("data/silver/holidays_clean.csv")
+
+holiday_frames = []
+
+for year in [2024, 2025]:
+    path = latest_file(HOLIDAYS_BRONZE_DIR, f"canada_holidays_{year}_*.json")
+    with open(path, "r", encoding="utf-8") as f:
+        payload = json.load(f)
+
+    df = pd.DataFrame(payload)[["date", "name", "global"]]
+    df = df.rename(columns={"name": "holiday_name", "global": "is_national"})
+    df["date"] = pd.to_datetime(df["date"]).dt.date
+    df = df[df["is_national"]].drop(columns=["is_national"])
+    holiday_frames.append(df)
+
+holidays_silver = pd.concat(holiday_frames, ignore_index=True).sort_values("date")
+HOLIDAYS_SILVER_PATH.parent.mkdir(parents=True, exist_ok=True)
+holidays_silver.to_csv(HOLIDAYS_SILVER_PATH, index=False)
+print(f"Saved {HOLIDAYS_SILVER_PATH}")
