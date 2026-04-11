@@ -376,7 +376,7 @@ h1, h2, h3,
     display: block;
     font-family: 'Inter', sans-serif;
     font-size: 0.8rem;
-    color: #64748b;
+    color: #38bdf8;
     margin-bottom: 0.18rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -817,7 +817,7 @@ def render_visual_story(filtered_df):
             unsafe_allow_html=True,
         )
         st.caption(
-            "This checks whether rainfall appears to separate PM2.5 into two group means, which is why a two-sample t-test comes next."
+            "Rain may affect airborne particles, so this chart compares PM2.5 on rainy and non-rainy days before a two-sample t-test formally evaluates the difference."
         )
         fig2 = px.box(
             filtered_df,
@@ -837,7 +837,7 @@ def render_visual_story(filtered_df):
             unsafe_allow_html=True,
         )
         st.caption(
-            "This reframes air quality as a categorical outcome and motivates a test of association rather than a test of means."
+            "This chart counts clean-air and bad-air days on holidays versus regular days. Because both variables are categories, the next step is a chi-square test of association."
         )
         counts = (
             filtered_df.groupby(["is_holiday", "bad_air_day"])
@@ -991,7 +991,7 @@ def render_hypothesis_tests(filtered_df, selected_city):
         render_test_card(
             label="Test 3",
             method="Chi-square test",
-            question="Is a bad-air day associated with the holiday flag?",
+            question="Are bad air days more common on holidays than on regular days?",
             variables="bad_air_day and is_holiday",
             hypotheses_html="<b style='color:#e2e8f0;'>H0:</b> bad_air_day and is_holiday are independent &nbsp; | &nbsp; <b style='color:#e2e8f0;'>H1:</b> they are associated",
             why_text="Both variables are categorical, so the question is about association in counts rather than differences in means.",
