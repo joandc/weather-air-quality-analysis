@@ -517,7 +517,7 @@ def render_hero(filtered_df, selected_city):
           <div class="hero-grid">
             <div class="hero-copy">
               <div class="hero-tag">Assignment 4 | Statistical Analysis Story</div>
-              <div class="hero-title">Weather and air quality in <span>Toronto and Vancouver</span></div>
+              <div class="hero-title">Weather and Air Quality in <span>Toronto and Vancouver</span></div>
               <div class="hero-sub">
                 This app follows one analytical question from context to conclusion:
                 how do weather conditions and holidays relate to air quality in Toronto and Vancouver,
@@ -610,98 +610,33 @@ def render_data_foundations(filtered_df):
     m3.metric("Mean PM2.5", f"{mean_pm25:.2f} ug/m3")
     m4.metric("Holiday rows", f"{holiday_rows:,}", delta=f"{rainy_share:.1f}% rainy")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown(
-            """
-            <div class="table-card">
-              <div class="card-title">Derived variables used in the tests</div>
-            """,
-            unsafe_allow_html=True,
-        )
-        derived = pd.DataFrame(
-            {
-                "Column": ["is_holiday", "bad_air_day", "rainy_day"],
-                "Type": ["bool", "bool", "bool"],
-                "Why it matters": [
-                    "Creates the holiday vs regular-day comparison",
-                    "Turns PM2.5 into a categorical air-quality outcome",
-                    "Creates the rainy vs non-rainy comparison",
-                ],
-            }
-        )
-        st.markdown(
-            f'<div class="table-scroll">{derived.to_html(classes="tbl tbl-blue", index=False)}</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="table-card">
+          <div class="card-title">Preview of the final dataset</div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f'<div class="table-scroll">{filtered_df.head(15).to_html(classes="tbl tbl-blue", index=False)}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    with col2:
-        st.markdown(
-            """
-            <div class="table-card">
-              <div class="card-title">How the visuals lead into the tests</div>
-            """,
-            unsafe_allow_html=True,
-        )
-        test_map = pd.DataFrame(
-            {
-                "Visual pattern": [
-                    "AQI versus benchmark over time",
-                    "PM2.5 by rainy-day group",
-                    "Bad-air counts by holiday flag",
-                    "PM2.5 spread by holiday flag",
-                    "Temperature against PM2.5",
-                ],
-                "Formal test": [
-                    "One-sample t-test",
-                    "Welch two-sample t-test",
-                    "Chi-square test",
-                    "Levene's test",
-                    "Pearson correlation",
-                ],
-            }
-        )
-        st.markdown(
-            f'<div class="table-scroll">{test_map.to_html(classes="tbl tbl-green", index=False)}</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    col3, col4 = st.columns([1.2, 1])
-    with col3:
-        st.markdown(
-            """
-            <div class="table-card">
-              <div class="card-title">Preview of the final dataset</div>
-            """,
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f'<div class="table-scroll">{filtered_df.head(15).to_html(classes="tbl tbl-blue", index=False)}</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
-    with col4:
-        st.markdown(
-            """
-            <div class="table-card">
-              <div class="card-title">Summary statistics</div>
-            """,
-            unsafe_allow_html=True,
-        )
-        summary = (
-            filtered_df.select_dtypes(include="number")
-            .describe()
-            .round(2)
-            .reset_index()
-        )
-        st.markdown(
-            f'<div class="table-scroll">{summary.to_html(classes="tbl tbl-purple", index=False)}</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
-
+    derived = pd.DataFrame(
+        {
+            "Column": ["is_holiday", "bad_air_day", "rainy_day"],
+            "Type": ["bool", "bool", "bool"],
+            "Why it matters": [
+                "Creates the holiday vs regular-day comparison",
+                "Turns PM2.5 into a categorical air-quality outcome",
+                "Creates the rainy vs non-rainy comparison",
+            ],
+        }
+    )
+    summary = (
+        filtered_df.select_dtypes(include="number").describe().round(2).reset_index()
+    )
     descriptions = pd.DataFrame(
         {
             "Column": [
@@ -732,21 +667,103 @@ def render_data_foundations(filtered_df):
             ],
         }
     )
-    st.markdown(
-        """
-        <div class="table-card">
-          <div class="card-title">Column descriptions</div>
-        """,
-        unsafe_allow_html=True,
+    test_map = pd.DataFrame(
+        {
+            "Visual pattern": [
+                "AQI versus benchmark over time",
+                "PM2.5 by rainy-day group",
+                "Bad-air counts by holiday flag",
+                "PM2.5 spread by holiday flag",
+                "Temperature against PM2.5",
+            ],
+            "Formal test": [
+                "One-sample t-test",
+                "Welch two-sample t-test",
+                "Chi-square test",
+                "Levene's test",
+                "Pearson correlation",
+            ],
+        }
     )
-    st.markdown(
-        f'<div class="table-scroll">{descriptions.to_html(classes="tbl tbl-blue", index=False)}</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
+
+    col1, col2 = st.columns([1, 1.1])
+    with col1:
+        st.markdown(
+            """
+            <div class="table-card">
+              <div class="card-title">Summary statistics</div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f'<div class="table-scroll">{summary.to_html(classes="tbl tbl-purple", index=False)}</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col2:
+        st.markdown(
+            """
+            <div class="table-card">
+              <div class="card-title">Derived variables used in the tests</div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f'<div class="table-scroll">{derived.to_html(classes="tbl tbl-blue", index=False)}</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    col3, col4 = st.columns([1.15, 1])
+    with col3:
+        st.markdown(
+            """
+            <div class="table-card">
+              <div class="card-title">Column descriptions</div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f'<div class="table-scroll">{descriptions.to_html(classes="tbl tbl-blue", index=False)}</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col4:
+        st.markdown(
+            """
+            <div class="table-card">
+              <div class="card-title">How the visuals lead into the tests</div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f'<div class="table-scroll">{test_map.to_html(classes="tbl tbl-purple", index=False)}</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
-def render_visual_story(filtered_df):
+def axis_range(reference_df, column, floor_zero=False):
+    values = reference_df[column].dropna()
+    if values.empty:
+        return None
+
+    min_value = float(values.min())
+    max_value = float(values.max())
+    span = max_value - min_value
+    padding = span * 0.08 if span else max(abs(max_value) * 0.08, 1)
+    lower = min_value - padding
+    upper = max_value + padding
+
+    if floor_zero:
+        lower = min(0, lower)
+
+    return [lower, upper]
+
+
+def render_visual_story(filtered_df, reference_df):
     section_header("03", "Visual Evidence", "#2e1065", "#a78bfa")
     st.markdown(
         """
@@ -767,6 +784,18 @@ def render_visual_story(filtered_df):
         return
 
     colors = {"Toronto": "#38bdf8", "Vancouver": "#34d399"}
+    aqi_range = axis_range(reference_df, "aqi_max", floor_zero=True)
+    pm25_range = axis_range(reference_df, "pm25_mean", floor_zero=True)
+
+    reference_counts = (
+        reference_df.groupby(["is_holiday", "bad_air_day"]).size().reset_index(name="count")
+    )
+    if reference_counts.empty:
+        count_range = None
+    else:
+        max_stacked_count = reference_counts.groupby("is_holiday")["count"].sum().max()
+        count_range = [0, max_stacked_count * 1.1]
+
     layout = dict(
         paper_bgcolor="#1e293b",
         plot_bgcolor="#0f172a",
@@ -807,6 +836,8 @@ def render_visual_story(filtered_df):
         annotation_font_size=11,
     )
     fig1.update_layout(**layout)
+    if aqi_range:
+        fig1.update_yaxes(range=aqi_range)
     fig1.for_each_trace(lambda trace: trace.update(name=str(trace.name).title()))
     st.plotly_chart(fig1, use_container_width=True)
 
@@ -829,6 +860,8 @@ def render_visual_story(filtered_df):
             title="PM2.5 on rainy versus non-rainy days",
         )
         fig2.update_layout(**layout)
+        if pm25_range:
+            fig2.update_yaxes(range=pm25_range)
         st.plotly_chart(fig2, use_container_width=True)
 
     with right:
@@ -860,6 +893,8 @@ def render_visual_story(filtered_df):
             title="Bad-air day counts by holiday flag",
         )
         fig3.update_layout(**layout)
+        if count_range:
+            fig3.update_yaxes(range=count_range)
         st.plotly_chart(fig3, use_container_width=True)
 
     left, right = st.columns(2)
@@ -881,6 +916,8 @@ def render_visual_story(filtered_df):
             title="PM2.5 variability by holiday flag",
         )
         fig4.update_layout(**layout)
+        if pm25_range:
+            fig4.update_yaxes(range=pm25_range)
         st.plotly_chart(fig4, use_container_width=True)
 
     with right:
@@ -905,6 +942,8 @@ def render_visual_story(filtered_df):
             title="Temperature versus PM2.5 concentration",
         )
         fig5.update_layout(**layout)
+        if pm25_range:
+            fig5.update_yaxes(range=pm25_range)
         st.plotly_chart(fig5, use_container_width=True)
 
 
@@ -1152,11 +1191,12 @@ selected_city = st.sidebar.radio(
 
 min_date = df["date"].min().date()
 max_date = df["date"].max().date()
-selected_dates = st.sidebar.date_input(
+selected_dates = st.sidebar.slider(
     "Date range",
-    value=(min_date, max_date),
     min_value=min_date,
     max_value=max_date,
+    value=(min_date, max_date),
+    format="YYYY/MM/DD",
 )
 
 st.sidebar.markdown("---")
@@ -1182,18 +1222,21 @@ st.sidebar.markdown(
     unsafe_allow_html=True,
 )
 
-filtered_df = df.copy()
-if selected_city != "Both":
-    filtered_df = filtered_df[filtered_df["city"] == selected_city]
+date_filtered_df = df.copy()
 
 if isinstance(selected_dates, tuple) and len(selected_dates) == 2:
     start_date, end_date = selected_dates
-    filtered_df = filtered_df[
-        (filtered_df["date"].dt.date >= start_date)
-        & (filtered_df["date"].dt.date <= end_date)
+    date_filtered_df = date_filtered_df[
+        (date_filtered_df["date"].dt.date >= start_date)
+        & (date_filtered_df["date"].dt.date <= end_date)
     ]
 
+filtered_df = date_filtered_df.copy()
+if selected_city != "Both":
+    filtered_df = filtered_df[filtered_df["city"] == selected_city]
+
 filtered_df = filtered_df.sort_values(["date", "city"]).reset_index(drop=True)
+date_filtered_df = date_filtered_df.sort_values(["date", "city"]).reset_index(drop=True)
 
 if filtered_df.empty:
     st.warning(
@@ -1204,6 +1247,6 @@ if filtered_df.empty:
 render_hero(filtered_df, selected_city)
 render_project_story()
 render_data_foundations(filtered_df)
-render_visual_story(filtered_df)
+render_visual_story(filtered_df, date_filtered_df)
 render_hypothesis_tests(filtered_df, selected_city)
 render_reflection()

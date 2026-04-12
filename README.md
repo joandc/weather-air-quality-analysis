@@ -1,4 +1,4 @@
-# Weather Air Quality Analysis
+# Weather and Air Quality Analysis
 
 Medallion data pipeline and Streamlit dashboard analyzing weather and air quality patterns in Toronto and Vancouver, enriched with Canadian holiday data.
 
